@@ -1,6 +1,6 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "../../utils/useSupabase";
 
 export const scrollIntoId = (id: string) => {
   const element = document.getElementById(id);
@@ -9,16 +9,28 @@ export const scrollIntoId = (id: string) => {
   }
 };
 
-export default function NavBar({activeSection} : {activeSection: string}) {
+const NavBar = ({activeSection} : {activeSection: string}) => {
+
+  const [name, setName] = useState<string>("");
+
+  useEffect(() => {
+    (async () => {
+      let { data, status } = await supabase.from("users").select().eq("id", process.env.NEXT_PUBLIC_USER_ID);
+      if (status === 200) {
+        setName(data[0].name)
+      }
+    })();
+  }, [name])
+
   return (
     <header className="relative m-auto flex h-[55px] w-full items-center rounded-[8px] border-[1px] border-gray-200 nav-blur pl-2 text-gray-100 md:pl-8">
-      <nav className="md:w-[10vw]">
+      <nav className="md:w-[18vw]">
         <span
           role="link"
           onClick={() => scrollIntoId("_hello")}
           className="heading-gradient cursor-pointer text-lg font-bold leading-[120.4%] tracking-wider transition-all duration-150 ease-in"
         >
-          @lekipising
+          {name}
         </span>
       </nav>
       <nav className="hidden h-full items-center gap-2 md:flex">
@@ -54,3 +66,5 @@ function OneNavItem({ text, delay, isActive }: { text: string; delay?: number; i
     </motion.nav>
   );
 }
+
+export default NavBar;

@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { motion } from "framer-motion";
 import useIntersect from "../../utils/useIntersectionObserver";
+import { supabase } from "../../utils/useSupabase";
 
 export default function AboutMe({
   setIsVisible,
@@ -16,9 +17,26 @@ export default function AboutMe({
   });
 
   const observeRef = useRef(null);
+  const [about, setAbout] = useState<string[]>([]);
+  const [skills, setSkills] = useState<{ name: string, symbol: string }[]>([]);
 
   useEffect(() => {
-    setNode(observeRef.current);
+    (async () => {
+      setNode(observeRef.current);
+      let getAbout = await supabase
+        .from("informations")
+        .select()
+        .eq("user_id", process.env.NEXT_PUBLIC_USER_ID);
+      let getSkills = await supabase
+        .from("skills")
+        .select()
+        .eq("user_id", process.env.NEXT_PUBLIC_USER_ID)
+        .order('id', { ascending: true });
+      if (getAbout.status === 200 && getSkills.status === 200) {
+        setAbout(getAbout.data[0].about.split("\n"));
+        setSkills(getSkills.data.map((skill) => ({ name: skill.name, symbol: skill.symbol })))
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -31,7 +49,7 @@ export default function AboutMe({
     <motion.section
       id="_about-me"
       ref={observeRef}
-      className="relative mt-8 cursor-default bg-dark-100/20 p-6 text-[13px] font-medium leading-[150%] text-gray-100 shadow-lg transition-all duration-300 ease-in hover:bg-dark-100/40 md:relative md:m-auto md:mb-32 md:mt-0 md:w-max  md:rounded-[30px] md:p-16 md:text-[16px]"
+      className="relative mt-8 cursor-default bg-dark-100/20 p-6 text-[13px] font-medium leading-[150%] text-gray-100 shadow-lg transition-all duration-300 ease-in hover:bg-dark-100/40 md:relative md:m-auto md:mb-32 md:mt-0 md:w-max md:rounded-[30px] md:p-16 md:text-[16px] !w-[64%]"
     >
       <div className="absolute -top-12 left-1/2 w-[315px] -translate-x-1/2">
         <motion.h2 className="heading-gradient text-lg font-semibold text-white">
@@ -46,63 +64,33 @@ export default function AboutMe({
       </div>
       <br />
 
-      <p className="transition-all duration-300 !leading-loose ease-in hover:text-white/70">
-        4+ years of frontend mastery have sculpted me into a craftsmanship <br className="md:block hidden" /> who thrives on creating seamless, visually stunning interfaces.<br /><br /> What sets me apart? - My holistic approach as an all-round software engineer<br className="md:block hidden" /> and a seasoned team lead, guiding squads through frontend challenges<br className="md:block hidden" /> and beyond.
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {about[0]}
       </p>
       <br />
-      <p></p>
-      <p className="transition-all duration-300 ease-in hover:text-white/70">
-        If you seek transformative solutions, consulting, or mentorship,{" "}
-        <br className="hidden md:block" />
-        let&apos;s connect!
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {about[1]}
       </p>
       <br />
-      <p className="transition-all duration-300 ease-in hover:text-white/70">
-        I build awesome products using:
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {about[2]}
       </p>
-      <div className="grid w-full grid-cols-2 gap-1 gap-x-5 pl-4 md:grid-cols-3">
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          Next.js
-        </p>
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          React
-        </p>
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          TypeScript
-        </p>
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          Tailwind CSS
-        </p>
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          AWS
-        </p>
-        <p className="asterisk text-yellow transition-all duration-300 ease-in hover:text-white/70">
-          GraphQL
-        </p>
-      </div>
-      <div className="mt-6 flex items-center gap-4">
-        <span className="text-xs">Others:</span>
-        <p className="flex gap-1 text-xs text-gray-100">
-          <span className="text-yellow">Git</span>
-          &#x2022;
-          <span className="text-yellow">Redux Toolkit</span>
-          &#x2022;
-          <span className="text-yellow">Java</span>
-          &#x2022;
-          <span className="text-yellow">Python</span>
-          &#x2022;
-          <span className="text-yellow">Jest</span>
-          &#x2022;
-          <span className="text-yellow">CI/CD</span>
-          &#x2022;
-          <span className="text-yellow">Nest JS</span>
-          &#x2022;
-          <span className="text-yellow">Sass</span>
-          &#x2022;
-          <span className="text-yellow">SEO</span>
-          &#x2022;
-          <span className="text-yellow">Web Perf</span>
-        </p>
+      <br />
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {about[3]}
+      </p>
+      <br />
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {about[4]}
+      </p>
+      <br />
+      <p className="!leading-loose transition-all duration-300 ease-in hover:text-white/70 w-full indent-4">
+        {"I build awesome 3D web apps using:"}
+      </p>
+      <div className="flex gap-4 justify-center mt-4">
+        {skills.map((skill, id) =>
+          <img key={`my-skills-${id}`} src={skill.symbol} alt={skill.name} className="w-12 h-12 bg-white border border-white rounded-xl opacity-80" />
+        )}
       </div>
     </motion.section>
   );
